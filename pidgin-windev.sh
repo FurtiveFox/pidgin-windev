@@ -5,6 +5,9 @@ pidgin_version="2.14.8"
 devroot="$1"
 path="$2"
 
+# enable script_debug=true to turn on verbose outputs throughout 
+script_debug=false
+
 if [[ "$1" = -* || -z "$devroot" || ( -n "$path" && "$path" != --path ) ]]; then echo "
     Pidgin Windows Development Setup ${version}
     Target Pidgin version ${pidgin_version}
@@ -103,7 +106,15 @@ download() {
     file="$1/$filename"
     mkdir -p "$1"
     [[ -f "$file" && ! -s "$file" ]] && rm "$file"
-    [[ ! -e "$file" ]] && { wget --no-hsts --no-check-certificate --quiet --output-document "$file" "$2" || oops "failed downloading from ${2}"; }
+    
+    if $script_debug
+    then
+        #if script_debug enabled, turn off --quiet flag
+        [[ ! -e "$file" ]] && { wget --no-hsts --no-check-certificate --output-document "$file" "$2" || oops "failed downloading from ${2}"; }
+    else
+        [[ ! -e "$file" ]] && { wget --no-hsts --no-check-certificate --quiet --output-document "$file" "$2" || oops "failed downloading from ${2}"; }
+    fi
+
 }
 
 extract() {

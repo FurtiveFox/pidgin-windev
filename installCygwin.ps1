@@ -1,7 +1,26 @@
-# Resources:
-# https://github.com/tianon/dockerfiles/blob/master/cygwin/Dockerfile.template
-# https://www.powershellgallery.com/packages/AppVeyorBYOC/1.0.21/Content/scripts%5CWindows%5Cinstall_cygwin.ps1
-# https://www.cygwin.com/faq/faq.html#faq.setup.cli
+
+<#
+
+.SYNOPSIS
+    A script to install cygwin64 bit in the default directory from scratch and the tools required
+    for the pidgin V2 build process.
+
+.DESCRIPTION
+    This script will download the cygwin installer and verify it with the file has from the cygwin website.
+    It will then launch the installer and automatically select the packages necessary for the windows
+    pidgin build setup script (pidgin-windev.sh)
+
+.NOTES
+    The following resources were used in developing this script
+    # https://github.com/tianon/dockerfiles/blob/master/cygwin/Dockerfile.template
+    # https://www.powershellgallery.com/packages/AppVeyorBYOC/1.0.21/Content/scripts%5CWindows%5Cinstall_cygwin.ps1
+    # https://www.cygwin.com/faq/faq.html#faq.setup.cli
+
+
+
+#>
+
+
 
 
 $folderCygwinBase = "C:\cygwin64\"
@@ -37,8 +56,23 @@ $installerVerified = $false
 Write-Host "Installing Cygwin x64..." -ForegroundColor Cyan
 
 if(Test-Path $folderCygwinBase) {
-    Write-Host "Deleting existing installation..."
-    Remove-Item $folderCygwinBase -Recurse -Force
+
+    #If folder exists, ask user to continue
+    #else cancel script
+
+    Write-Host "Cygwin installation folder already exists."
+    Write-Host "Continuing will delete existing folder."
+    $confirm = Read-Host "Enter Y to continue: "
+ 
+    if ($confirm.ToUpper() -eq 'Y'){
+        Write-Host "Removing Cygwin folder..."
+        Remove-Item $folderCygwinBase -Recurse -Force
+    } else {
+        Write-Host "Canceling installation..."
+        Start-Sleep -Seconds 3
+        Exit
+    }
+
 }
 
 # download installer
@@ -74,7 +108,12 @@ if (!$installerVerified){
     exit 1
 }
 
-Start-Process -FilePath (Join-Path $folderCygwinBase $fileCygwin64) -ArgumentList $cygInstallArgs
+Start-Process -FilePath (Join-Path $folderCygwinBase $fileCygwin64) -ArgumentList $cygInstallArgs -Wait
+
+Write-Host "Cygwin installation complete."
+
+
+
 
 
 

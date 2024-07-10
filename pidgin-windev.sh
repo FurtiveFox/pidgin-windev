@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 version="2022.03.27"
-pidgin_version="2.14.8"
+pidgin_version="2.14.13"
 devroot="$1"
 path="$2"
 
